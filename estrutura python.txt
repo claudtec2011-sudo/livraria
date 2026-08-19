@@ -1,0 +1,22 @@
+livraria_python/
+├── app.py
+├── requirements.txt
+├── database.py
+├── models.py
+├── routes/
+│   ├── __init__.py
+│   ├── livros.py
+│   ├── vendas.py
+│   └── pagamentos.py
+├── static/
+│   ├── css/
+│   │   └── style.css
+│   └── js/
+│       └── script.js
+├── templates/
+│   └── index.html
+├── uploads/
+│   ├── livros/
+│   └── comprovantes/
+└── instance/
+    └── livraria.db
