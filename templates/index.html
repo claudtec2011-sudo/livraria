@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📚 Livraria Virtual</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="logo-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <div class="logo-text">
+                        <h1 class="animated-title">
+                            <span>L</span><span>i</span><span>v</span><span>r</span><span>a</span><span>r</span><span>i</span><span>a</span>
+                            <span class="highlight">Virtual</span>
+                        </h1>
+                        <span class="subtitle">📖 Sua biblioteca digital</span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <div class="status-badge">
+                        <span class="status-dot"></span>
+                        <span id="status-server">Online</span>
+                    </div>
+                    <button onclick="abrirAdmin()" class="btn-admin" id="btn-admin">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Admin</span>
+                    </button>
+                    <button onclick="abrirCarrinho()" class="btn-cart">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-badge" id="carrinho-count">0</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- NAVEGAÇÃO -->
+        <nav class="nav-tabs">
+            <button class="tab-btn active" onclick="mudarTab('catalogo')" id="tab-catalogo-btn">
+                <i class="fas fa-book"></i> Catálogo
+            </button>
+            <button class="tab-btn" onclick="mudarTab('vendas')" id="tab-vendas-btn">
+                <i class="fas fa-shopping-bag"></i> Minhas Compras
+            </button>
+            <button class="tab-btn" onclick="mudarTab('admin')" id="tab-admin-btn" style="display:none;">
+                <i class="fas fa-cog"></i> Admin
+            </button>
+        </nav>
+
+        <!-- CONTEÚDO PRINCIPAL -->
+        <main class="main-content">
+            <!-- ABA CATÁLOGO -->
+            <div id="tab-catalogo" class="tab-content active">
+                <div class="catalogo-header">
+                    <div class="catalogo-title">
+                        <h2><i class="fas fa-search"></i> Explore nosso catálogo</h2>
+                        <p>Encontre o livro perfeito para sua jornada</p>
+                    </div>
+                    <div class="filtros-avancados">
+                        <div class="filtros-row">
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="busca-livro" placeholder="Buscar por título ou autor..." onkeyup="buscarLivros()">
+                            </div>
+                            <select id="filtro-categoria" onchange="buscarLivros()">
+                                <option value="">Todas as categorias</option>
+                            </select>
+                        </div>
+                        <div class="filtros-row filtros-avancados-row">
+                            <div class="filtro-group">
+                                <label><i class="fas fa-user"></i> Autor</label>
+                                <input type="text" id="filtro-autor" placeholder="Filtrar por autor..." onkeyup="buscarLivros()">
+                            </div>
+                            <div class="filtro-group">
+                                <label><i class="fas fa-tag"></i> Tipo</label>
+                                <select id="filtro-tipo" onchange="buscarLivros()">
+                                    <option value="todos">Todos</option>
+                                    <option value="gratuito">🎁 Gratuitos</option>
+                                    <option value="pago">💰 Pagos</option>
+                                </select>
+                            </div>
+                            <div class="filtro-group">
+                                <label><i class="fas fa-dollar-sign"></i> Preço</label>
+                                <div class="preco-range">
+                                    <input type="number" id="filtro-preco-min" placeholder="Min" onchange="buscarLivros()" style="width: 80px;">
+                                    <span>até</span>
+                                    <input type="number" id="filtro-preco-max" placeholder="Max" onchange="buscarLivros()" style="width: 80px;">
+                                </div>
+                            </div>
+                            <button onclick="limparFiltros()" class="btn-limpar-filtros">
+                                <i class="fas fa-undo"></i> Limpar Filtros
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div id="lista-livros" class="grid-livros"></div>
+            </div>
+
+            <!-- ABA VENDAS - MINHAS COMPRAS -->
+            <div id="tab-vendas" class="tab-content">
+                <h2><i class="fas fa-history"></i> Minhas Compras</h2>
+                <div id="lista-vendas"></div>
+            </div>
+
+            <!-- ABA ADMIN -->
+            <div id="tab-admin" class="tab-content">
+                <h2><i class="fas fa-cog"></i> Painel Administrativo</h2>
+                
+                <!-- ESTATÍSTICAS -->
+                <div class="stats-grid" id="stats-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-book"></i>
+                        <div>
+                            <span class="stat-value" id="total-livros">0</span>
+                            <span class="stat-label">Total de Livros</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-shopping-cart"></i>
+                        <div>
+                            <span class="stat-value" id="total-vendas">0</span>
+                            <span class="stat-label">Total de Vendas</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-clock"></i>
+                        <div>
+                            <span class="stat-value" id="pendentes">0</span>
+                            <span class="stat-label">Pagamentos Pendentes</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-dollar-sign"></i>
+                        <div>
+                            <span class="stat-value" id="total-faturado">Kz 0,00</span>
+                            <span class="stat-label">Total Faturado</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- ADICIONAR LIVRO -->
+                <div class="admin-section">
+                    <h3><i class="fas fa-plus-circle"></i> Adicionar Novo Livro</h3>
+                    <form id="form-livro" class="form-livro">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Título *</label>
+                                <input type="text" id="livro-titulo" required placeholder="Ex: A Arte da Guerra">
+                            </div>
+                            <div class="form-group">
+                                <label>Autor *</label>
+                                <input type="text" id="livro-autor" required placeholder="Ex: Sun Tzu">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Preço (Kz) *</label>
+                                <input type="number" id="livro-preco" step="0.01" required placeholder="0.00">
+                            </div>
+                            <div class="form-group">
+                                <label>Quantidade *</label>
+                                <input type="number" id="livro-quantidade" required placeholder="10">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Categoria *</label>
+                                <input type="text" id="livro-categoria" required placeholder="Ex: Filosofia">
+                            </div>
+                            <div class="form-group">
+                                <label>Arquivo PDF</label>
+                                <input type="file" id="livro-pdf" accept=".pdf">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group" style="grid-column: span 2;">
+                                <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 10px; background: var(--gray-100); border-radius: 8px;">
+                                    <input type="checkbox" id="livro-gratuito" style="width: 20px; height: 20px; cursor: pointer;">
+                                    <span style="font-weight: 600; color: var(--secondary); font-size: 16px;">
+                                        <i class="fas fa-gift"></i> Marcar como GRATUITO
+                                    </span>
+                                    <span style="font-size: 13px; color: var(--gray-500); margin-left: 10px;">
+                                        (Se marcado, o livro será gratuito e não exigirá pagamento)
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i> Salvar Livro
+                        </button>
+                    </form>
+                </div>
+
+                <!-- LISTA DE TODOS OS LIVROS (ADMIN) -->
+                <div class="admin-section">
+                    <h3><i class="fas fa-list"></i> Gerenciar Todos os Livros</h3>
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                            <thead>
+                                <tr style="background: var(--primary-dark); color: white;">
+                                    <th style="padding: 10px; text-align: left;">ID</th>
+                                    <th style="padding: 10px; text-align: left;">Título</th>
+                                    <th style="padding: 10px; text-align: left;">Autor</th>
+                                    <th style="padding: 10px; text-align: left;">Preço</th>
+                                    <th style="padding: 10px; text-align: left;">Qtd</th>
+                                    <th style="padding: 10px; text-align: left;">Categoria</th>
+                                    <th style="padding: 10px; text-align: center;">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-livros-admin">
+                                <tr>
+                                    <td colspan="7" style="text-align: center; padding: 20px; color: var(--gray-500);">
+                                        <i class="fas fa-spinner fa-spin"></i> Carregando...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ANÁLISE DE COMPROVANTES -->
+                <div class="admin-section" id="analise-comprovantes-section">
+                    <h3><i class="fas fa-file-invoice"></i> Análise de Comprovantes</h3>
+                    <div id="analise-comprovantes" style="min-height: 100px;">
+                        <div style="text-align: center; padding: 20px; color: var(--gray-500);">
+                            <i class="fas fa-spinner fa-spin"></i> Carregando comprovantes...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- MODAL DE EDIÇÃO -->
+        <div id="modal-editar" class="modal">
+            <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header">
+                    <h2><i class="fas fa-edit"></i> Editar Livro</h2>
+                    <button class="close-modal" onclick="fecharModal('modal-editar')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <form id="form-editar" style="padding: 20px 30px;">
+                    <input type="hidden" id="edit-livro-id">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Título *</label>
+                            <input type="text" id="edit-livro-titulo" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Autor *</label>
+                            <input type="text" id="edit-livro-autor" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Preço (Kz)</label>
+                            <input type="number" id="edit-livro-preco" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>Quantidade</label>
+                            <input type="number" id="edit-livro-quantidade">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Categoria *</label>
+                            <input type="text" id="edit-livro-categoria" required>
+                        </div>
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin-top: 20px;">
+                                <input type="checkbox" id="edit-livro-gratuito" style="width: 20px; height: 20px;">
+                                <span style="font-weight: 600; color: var(--secondary);">
+                                    <i class="fas fa-gift"></i> Gratuito
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary" style="width: 100%;">
+                        <i class="fas fa-save"></i> Atualizar Livro
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- MODAL DE VISUALIZAÇÃO DE COMPROVANTE -->
+        <div id="modal-comprovante" class="modal">
+            <div class="modal-content" style="max-width: 800px;">
+                <div class="modal-header">
+                    <h2><i class="fas fa-file-invoice"></i> Visualizar Comprovante</h2>
+                    <button class="close-modal" onclick="fecharModal('modal-comprovante')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="comprovante-conteudo" style="padding: 20px; text-align: center; min-height: 300px;">
+                    <div style="padding: 40px;">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--primary);"></i>
+                        <p style="margin-top: 10px; color: var(--gray-600);">Carregando comprovante...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL DE VISUALIZAÇÃO DE PDF -->
+        <div id="modal-preview" class="modal">
+            <div class="modal-content modal-pdf">
+                <div class="modal-header">
+                    <h2><i class="fas fa-eye"></i> Pré-visualização</h2>
+                    <button class="close-modal" onclick="fecharModal('modal-preview')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="pdf-toolbar">
+                    <div class="pdf-info">
+                        <i class="fas fa-file-pdf" style="color: var(--danger);"></i>
+                        <span id="pdf-nome">Carregando...</span>
+                    </div>
+                    <div class="pdf-controls">
+                        <button onclick="zoomOut()" class="zoom-btn" title="Diminuir">
+                            <i class="fas fa-search-minus"></i>
+                        </button>
+                        <span id="zoom-level">100%</span>
+                        <button onclick="zoomIn()" class="zoom-btn" title="Aumentar">
+                            <i class="fas fa-search-plus"></i>
+                        </button>
+                        <button onclick="zoomReset()" class="zoom-btn" title="Resetar Zoom">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                    </div>
+                    <div class="pdf-actions">
+                        <button onclick="fecharModal('modal-preview')" class="btn-close-preview">
+                            <i class="fas fa-times"></i> Fechar
+                        </button>
+                    </div>
+                </div>
+                <div id="preview-container" class="pdf-container">
+                    <div id="preview-content">
+                        <div class="pdf-loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Carregando pré-visualização...</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="pdf-footer">
+                    <i class="fas fa-info-circle"></i>
+                    <span>⚠️ Visualização apenas - Download e impressão desativados.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL DE COMPRA -->
+        <div id="modal-compra" class="modal">
+            <div class="modal-content modal-compra">
+                <div class="modal-header">
+                    <h2><i class="fas fa-shopping-cart"></i> Finalizar Compra</h2>
+                    <button class="close-modal" onclick="fecharModal('modal-compra')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="detalhes-compra"></div>
+                
+                <!-- DADOS BANCÁRIOS -->
+                <div class="bank-info">
+                    <h4><i class="fas fa-university"></i> Dados Bancários</h4>
+                    <div class="bank-details">
+                        <div class="bank-item">
+                            <span class="bank-label">Banco:</span>
+                            <span class="bank-value">BFA - Banco de Fomento Angola</span>
+                        </div>
+                        <div class="bank-item">
+                            <span class="bank-label">Titular:</span>
+                            <span class="bank-value">Joaquina Quindombe Muenge</span>
+                        </div>
+                        <div class="bank-item">
+                            <span class="bank-label">IBAN:</span>
+                            <span class="bank-value">AO06 0006 0000 7240 9962 3015 1</span>
+                        </div>
+                        <div class="bank-item">
+                            <span class="bank-label">SWIFT:</span>
+                            <span class="bank-value">BFAOAOLU</span>
+                        </div>
+                    </div>
+                    <div class="pix-info">
+                        <span class="pix-label"><i class="fas fa-qrcode"></i> Express:</span>
+                        <span class="pix-value">946 646 242</span>
+                        <button onclick="copiarPix()" class="btn-copy">
+                            <i class="fas fa-copy"></i> Copiar
+                        </button>
+                    </div>
+                </div>
+
+                <form id="form-compra" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label>Nome do Cliente *</label>
+                        <input type="text" id="compra-cliente" required placeholder="Digite seu nome completo">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Quantidade *</label>
+                            <input type="number" id="compra-quantidade" min="1" required value="1">
+                        </div>
+                        <div class="form-group">
+                            <label>Método de Pagamento</label>
+                            <select id="compra-metodo">
+                                <option value="PIX">PIX</option>
+                                <option value="Express">Express - 946 646 242</option>
+                                <option value="Transferência">Transferência Bancária</option>
+                                <option value="Multicaixa">Multicaixa</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Comprovante de Pagamento *</label>
+                        <div class="upload-area" id="upload-area">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Clique ou arraste o comprovante aqui</p>
+                            <small>JPG, PNG ou PDF até 5MB</small>
+                            <input type="file" id="compra-comprovante" name="comprovante" accept=".pdf,.jpg,.png" required>
+                        </div>
+                        <div id="nome-arquivo" style="margin-top: 8px; font-size: 13px; color: var(--gray-500); display: none;">
+                            <i class="fas fa-file"></i> <span id="arquivo-nome"></span>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-success">
+                        <i class="fas fa-check"></i> Enviar Comprovante
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- MODAL DE DOWNLOAD -->
+        <div id="modal-download" class="modal">
+            <div class="modal-content modal-download">
+                <div class="modal-header">
+                    <h2><i class="fas fa-download"></i> Download Liberado</h2>
+                    <button class="close-modal" onclick="fecharModal('modal-download')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="download-conteudo"></div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="footer">
+            <p>© 2026 <span class="footer-highlight">Livraria Virtual</span> - Todos os direitos reservados</p>
+            <div class="footer-social">
+                <a href="#" target="_blank"><i class="fab fa-facebook"></i></a>
+                <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
+                <a href="#" target="_blank"><i class="fab fa-youtube"></i></a>
+                <a href="#" target="_blank"><i class="fab fa-whatsapp"></i></a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Função para limpar filtros
+        function limparFiltros() {
+            document.getElementById('busca-livro').value = '';
+            document.getElementById('filtro-categoria').value = '';
+            document.getElementById('filtro-autor').value = '';
+            document.getElementById('filtro-tipo').value = 'todos';
+            document.getElementById('filtro-preco-min').value = '';
+            document.getElementById('filtro-preco-max').value = '';
+            buscarLivros();
+        }
+    </script>
+    <script src="/static/js/script.js"></script>
+</body>
+</html>
