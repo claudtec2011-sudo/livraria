@@ -9,6 +9,7 @@ import uuid
 from models import db, Livro, Venda, Pagamento
 from scanner import carregar_livros_automaticamente
 
+
 # ==================== CONFIGURAÇÃO ====================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 INSTANCE_PATH = os.path.join(BASE_DIR, 'instance')
